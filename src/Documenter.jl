@@ -626,7 +626,13 @@ function git_push(
         end
 
         # Add, commit, and push the docs to the remote.
+        @debug "Add, commit, and push the docs to the remote."
+        @debug pwd()
         run(`git add -A .`)
+        @debug "git status:"
+        @debug read(`git status`, String)
+        @debug "tree:"
+        @debug read(`tree -a`, String)
         if !success(`git diff --cached --exit-code`)
             if forcepush
                 run(`git commit --amend --date=now -m "build based on $sha"`)
@@ -752,6 +758,9 @@ first, `git add -A` will not detect case changes in filenames.
 function gitrm_copy(src, dst)
     # Remove individual entries since with versions=nothing the root
     # would be removed and we want to preserve previews
+    @debug "Entering gitrm_copy"
+    @debug pwd()
+    @debug "Remove old files"
     if isdir(dst)
         for x in filter!(!in((".git", "previews")), readdir(dst))
             # --ignore-unmatch so that we wouldn't get errors if dst does not exist
@@ -763,9 +772,16 @@ function gitrm_copy(src, dst)
     mkpath(dst)
     # Copy individual entries rather then the full folder since with
     # versions=nothing it would replace the root including e.g. the .git folder
+    @debug "Tree of src=$src"
+    @debug read(`tree $src`, String)
+    @debug "Add new files"
     for x in readdir(src)
+        @debug "$(joinpath(src, x)) -> $(joinpath(dst, x))"
         cp(joinpath(src, x), joinpath(dst, x); force=true)
     end
+    @debug "Tree of dst=$dst"
+    @debug read(`tree $dst`, String)
+    @debug "Done with gitrm_copy"
 end
 
 function getenv(regex::Regex)
