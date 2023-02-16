@@ -439,7 +439,11 @@ function url(repo, file; commit=nothing)
     end
 end
 
-url(remote, repo, doc) = url(remote, repo, doc.data[:module], doc.data[:path], linerange(doc))
+function url(remote, repo, doc)
+    res = url(remote, repo, doc.data[:module], doc.data[:path], linerange(doc))
+    @info "(REMOTE=$remote; REPO=$repo; DOC=(mod=$(doc.data[:module]), file=$(doc.data[:path]), linerange=$(linerange(doc)))) -> $res" # DEBUG
+    return res
+end
 
 function url(remote, repo, mod, file, linerange)
     file === nothing && return nothing # needed on julia v0.6, see #689
